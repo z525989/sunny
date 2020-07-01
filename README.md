@@ -5,7 +5,7 @@
 带websocket、rpc通讯功能
 
 #### 软件架构
-软件架构说明
+
 #sunny-core
 
 #sunny-websockt
