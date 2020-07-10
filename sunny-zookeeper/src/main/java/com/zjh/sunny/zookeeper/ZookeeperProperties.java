@@ -1,4 +1,4 @@
-package com.zjh.sunny.core.properties;
+package com.zjh.sunny.zookeeper;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
@@ -16,7 +16,7 @@ public class ZookeeperProperties {
      * 权限信息
      * abd:123
      */
-    private String password;
+    private String digest;
 
     /**
      * 会话超时时间
@@ -46,12 +46,12 @@ public class ZookeeperProperties {
         this.server = server;
     }
 
-    public String getPassword() {
-        return password;
+    public String getDigest() {
+        return digest;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setDigest(String digest) {
+        this.digest = digest;
     }
 
     public int getSessionTimeoutMs() {

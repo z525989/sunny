@@ -24,12 +24,14 @@
         <java.version>1.8</java.version>
         <pagehelper.version>1.2.7</pagehelper.version>
         <fastjson.version>1.2.49</fastjson.version>
+        <curator.version>4.2.0</curator.version>
     </properties>
 
     <modules>
         <module>sunny-core</module>
         <module>sunny-websocket</module>
         <module>sunny-rpc</module>
+        <module>sunny-zookeeper</module>
     </modules>
 
     <dependencies>
