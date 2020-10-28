@@ -6,7 +6,7 @@ import com.zjh.sunny.core.constant.ErrorCode;
 import com.zjh.sunny.websocket.mapping.WebSocketMappingBindHandler;
 import com.zjh.sunny.websocket.mapping.WebSocketMapping;
 import com.zjh.sunny.websocket.message.WsMessage;
-import com.zjh.sunny.websocket.session.SessionManager;
+import com.zjh.sunny.websocket.session.WebSocketSessionManager;
 import io.netty.channel.ChannelHandlerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +26,7 @@ public class WebSocketRequestHandler {
     private final Logger logger = LoggerFactory.getLogger(WebSocketRequestHandler.class);
 
     @Autowired
-    private SessionManager sessionManager;
+    private WebSocketSessionManager webSocketSessionManager;
 
     @Autowired
     private WebSocketMappingBindHandler webSocketMappingBindHandler;
@@ -40,8 +40,16 @@ public class WebSocketRequestHandler {
      */
     @Async("asyncWebsocket")
     public void executor(ChannelHandlerContext ctx, WsMessage requestData) {
-        logger.debug("======= socket请求数据: " + JSONObject.toJSONString(requestData));
         try {
+            logger.debug("======= socket请求数据: " + JSONObject.toJSONString(requestData));
+
+            //TODO: 重连优化
+            boolean checkSession = webSocketSessionManager.checkSession(ctx.channel(), requestData.getSessionId());
+            if (!checkSession) {
+                ctx.channel().writeAndFlush(new WsMessage(ErrorCode.ERROR, "会话超时"));
+                return;
+            }
+
             int protocolCode = requestData.getProtocolCode();
 
             Method method = webSocketMappingBindHandler.getMethod(protocolCode);
@@ -69,9 +77,5 @@ public class WebSocketRequestHandler {
             logger.error("netty request error:", e);
             ctx.channel().writeAndFlush(new WsMessage(ErrorCode.ERROR, "asyncWebsocket error"));
         }
-    }
-
-    private void invokeProcess() {
-
     }
 }

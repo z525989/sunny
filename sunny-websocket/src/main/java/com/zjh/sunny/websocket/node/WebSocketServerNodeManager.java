@@ -1,10 +1,12 @@
-package com.zjh.sunny.core.zookeeper;
+package com.zjh.sunny.websocket.node;
 
 import com.alibaba.fastjson.JSONObject;
 import com.zjh.sunny.core.pojo.message.NotifyMessage;
 import com.zjh.sunny.core.pojo.node.NettyServerNode;
 import com.zjh.sunny.core.registry.RegistryCenter;
 import com.zjh.sunny.core.sender.NodeSender;
+import com.zjh.sunny.websocket.WebSocketProperties;
+import com.zjh.sunny.websocket.session.WebSocketSession;
 import io.netty.channel.ChannelHandlerContext;
 import org.apache.curator.framework.recipes.cache.ChildData;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
@@ -19,49 +21,61 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
+ * websocket 节点管理
  * @author zhangJinHui
  * @date 2020-3-12 15:36
  */
 @Component
-public class ServerNodeManager {
+public class WebSocketServerNodeManager {
 
-    private final Logger logger = LoggerFactory.getLogger(ServerNodeManager.class);
+    private final Logger logger = LoggerFactory.getLogger(WebSocketServerNodeManager.class);
 
     @Autowired
     private RegistryCenter registryCenter;
 
-//    @Autowired
-//    private ZkProperties zkProperties;
+    @Autowired
+    private WebSocketProperties webSocketProperties;
 
-    //注册到netty的节点（带临时id）
+    /**
+     * 注册到netty的节点（带临时id）
+     */
     private String registerPath;
 
-    //当前服务器节点信息
-    private NettyServerNode localNode = new NettyServerNode();
+    /**
+     * 当前服务器节点信息
+     */
+    private final NettyServerNode localNode = new NettyServerNode();
 
-    //节点通知器Map
-    private Map<Long, NodeSender> nodeSenderMap = new ConcurrentHashMap<>();
+    /**
+     * 节点通知器Map
+     */
+    private final Map<Long, NodeSender> nodeSenderMap = new ConcurrentHashMap<>();
 
     /**
      * 初始化节点信息
      * 注册节点到zookeeper
      */
-    public void initNode(String host, int port) {
+    public void initNode() {
         try {
+            int port          = webSocketProperties.getPort();
+            String host       = webSocketProperties.getHost();
+            String parentNode = webSocketProperties.getZkParentNode();
+            String pathPrefix = webSocketProperties.getZkPathPrefix();
+
             //保存netty连接信息
             localNode.setHost(host);
             localNode.setPort(port);
-
-            //根节点
-            String parentNode = zkProperties.getParentNode();
-            String pathPrefix = zkProperties.getPathPrefix();
 
             //创建父节点
             registryCenter.createParentIfNeeded(parentNode);
 
             //注册临时节点
             String nodePatch = parentNode + pathPrefix;
-            registerPath = registryCenter.createNode(nodePatch, CreateMode.EPHEMERAL_SEQUENTIAL, JSONObject.toJSONBytes(localNode));
+
+            registerPath = registryCenter.createNode(
+                    nodePatch,
+                    CreateMode.EPHEMERAL_SEQUENTIAL,
+                    JSONObject.toJSONBytes(localNode));
 
             logger.info("initNode registerPath : {}", registerPath);
 
@@ -193,7 +207,10 @@ public class ServerNodeManager {
             throw new RuntimeException("节点注册失败");
         }
 
-        String nodeStr = zkProperties.getParentNode() + zkProperties.getPathPrefix();
+        String parentNode = webSocketProperties.getZkParentNode();
+        String pathPrefix = webSocketProperties.getZkPathPrefix();
+
+        String nodeStr = parentNode + pathPrefix;
 
         int index = nodePath.lastIndexOf(nodeStr);
         if (index >= 0) {
@@ -240,17 +257,36 @@ public class ServerNodeManager {
     }
 
 
-
     /**
-     * 转发消息到对应服务器
+     * 转发消息到对应节点
      * @param session session
      * @param msg 消息内容
      */
-    public void forwardMsgToRemoteNode(WebSocketSession session, Object msg) {
-        //TODO:转发消息到对应服务器逻辑
+    public void forwardMsgToRemoteNode(WebSocketSession session, JSONObject msg) {
+        // 1. 获取用户所在节点
+        NettyServerNode nettyServerNode = session.getNode();
+        if (nettyServerNode == null) {
+            return;
+        }
+
+        NodeSender nodeSender = nodeSenderMap.get(nettyServerNode.getId());
+        if (nodeSender == null) {
+            return;
+        }
+
+        // 2. 封装消息
+        NotifyMessage notifyMessage = new NotifyMessage();
+
+        notifyMessage.setType(NotifyMessage.FORWARD);
+        notifyMessage.setMessage(msg.toJSONString().getBytes());
+
+        // 3. 发送消息到对应节点
+        nodeSender.writeAndFlush(notifyMessage);
     }
 
-    //    /**
+
+
+//    /**
 //     * 增加负载，表示有用户登录成功
 //     *
 //     * @return 成功状态

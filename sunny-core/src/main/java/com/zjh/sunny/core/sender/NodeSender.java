@@ -32,12 +32,12 @@ public class NodeSender {
     /**
      * netty client
      */
-    private Bootstrap bootstrap;
+    private final Bootstrap bootstrap;
 
     /**
      * nio线程
      */
-    private EventLoopGroup workGroup;
+    private final EventLoopGroup workGroup;
 
     /**
      * 连接通道

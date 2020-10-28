@@ -1,6 +1,6 @@
 package com.zjh.sunny.websocket.handle;
 
-import com.zjh.sunny.websocket.session.SessionManager;
+import com.zjh.sunny.websocket.session.WebSocketSessionManager;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -21,7 +21,7 @@ public class WebSocketPushHandler {
     private final Logger logger = LoggerFactory.getLogger(WebSocketPushHandler.class);
 
     @Autowired
-    private SessionManager sessionManager;
+    private WebSocketSessionManager webSocketSessionManager;
 
 //    @Autowired
 //    private WebSocketSessionDao webSocketSessionDao;
@@ -41,21 +41,21 @@ public class WebSocketPushHandler {
      * 给全部用户回复消息
      */
     public void sendStrToAll(String msg) {
-        sessionManager.getChannelGroup().forEach(channel -> channel.writeAndFlush(new TextWebSocketFrame(msg)));
+        webSocketSessionManager.getChannelGroup().forEach(channel -> channel.writeAndFlush(new TextWebSocketFrame(msg)));
     }
 
     /**
      * 广播消息（不给自己发）
      */
     public void broadcastStrToUser(ChannelHandlerContext ctx, String msg) {
-        sessionManager.getChannelGroup().stream()
+        webSocketSessionManager.getChannelGroup().stream()
                 .filter(channel -> channel.id() != ctx.channel().id())
                 .forEach(channel -> channel.writeAndFlush(new TextWebSocketFrame(msg)));
     }
 
 
     public void sendWsMsgToUser(ChannelHandlerContext ctx, Object msg) {
-        sessionManager.getChannelGroup().stream()
+        webSocketSessionManager.getChannelGroup().stream()
                 .filter(channel -> channel.id() == ctx.channel().id())
                 .forEach(channel -> channel.writeAndFlush(msg));
     }
@@ -73,7 +73,7 @@ public class WebSocketPushHandler {
 //    }
 
     public void sendWsMsgToUser(String sessionId, Object msg) {
-        Channel channel = sessionManager.getChannelBySessionId(sessionId);
+        Channel channel = webSocketSessionManager.getChannelBySessionId(sessionId);
         if (channel == null) {
             return;
         }
@@ -108,7 +108,7 @@ public class WebSocketPushHandler {
      * 广播数据（不包含自己）
      */
     public void broadcastWsMsg(ChannelHandlerContext ctx, Object msg) {
-        sessionManager.getChannelGroup().stream()
+        webSocketSessionManager.getChannelGroup().stream()
                 .filter(channel -> channel.id() != ctx.channel().id())
                 .forEach(channel -> channel.writeAndFlush(msg));
     }

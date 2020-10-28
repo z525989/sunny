@@ -2,7 +2,7 @@ package com.zjh.sunny.core.coder;
 
 import com.zjh.sunny.core.constant.HeadConstant;
 import com.zjh.sunny.core.constant.LinkType;
-import com.zjh.sunny.core.constant.NetConstant;
+import com.zjh.sunny.core.constant.NetAttributeKey;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
@@ -75,7 +75,7 @@ public class MessageDispatcherDecoder extends ByteToMessageDecoder {
             }
         }
         //保存链接类型
-        ctx.channel().attr(NetConstant.LINK_TYPE).set(linkType);
+        ctx.channel().attr(NetAttributeKey.LINK_TYPE).set(linkType);
         return linkType;
     }
 

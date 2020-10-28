@@ -1,7 +1,7 @@
 package com.zjh.sunny.websocket.handle;
 
 import com.zjh.sunny.websocket.message.WsMessage;
-import com.zjh.sunny.websocket.session.SessionManager;
+import com.zjh.sunny.websocket.session.WebSocketSessionManager;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
@@ -26,7 +26,7 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<Object> {
     private WebSocketServerHandshaker handshaker;
 
     @Autowired
-    private SessionManager sessionManager;
+    private WebSocketSessionManager webSocketSessionManager;
 
     @Autowired
     private WebSocketRequestHandler webSocketRequestService;
@@ -52,7 +52,7 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<Object> {
      */
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        sessionManager.addChannel(ctx.channel());
+        webSocketSessionManager.addChannel(ctx.channel());
     }
 
     /**
@@ -61,7 +61,7 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<Object> {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         ctx.close();
-        sessionManager.removeChannel(ctx.channel());
+        webSocketSessionManager.removeChannel(ctx.channel());
     }
 
     /**
@@ -71,7 +71,7 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<Object> {
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         logger.error("======= 连接异常：{}", cause.getMessage());
         ctx.close();
-        sessionManager.removeChannel(ctx.channel());
+        webSocketSessionManager.removeChannel(ctx.channel());
     }
 
     /**
@@ -113,25 +113,25 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<Object> {
         }
     }
 
-//    private void handleWebSocketRequest(ChannelHandlerContext ctx, WebSocketFrame frame) {
-//        try {
-//            logger.debug("======= 收到WebSocketFrame消息 =======");
-//
-//            // 判断是否是关闭链路的指令
-//            if (frame instanceof CloseWebSocketFrame) {
-//                handshaker.close(ctx.channel(), (CloseWebSocketFrame) frame.retain());
-//                return;
-//            }
-//
-//            // 判断是否是Ping消息
-//            if (frame instanceof PingWebSocketFrame) {
-//                ctx.channel().write(new PongWebSocketFrame(frame.content().retain()));
-//                return;
-//            }
-//
-//            //收到文本消息
-//            if (frame instanceof TextWebSocketFrame) {
-//                logger.debug("======= data: {}", ((TextWebSocketFrame) frame).text());
+    private void handleWebSocketRequest(ChannelHandlerContext ctx, WebSocketFrame frame) {
+        try {
+            logger.debug("======= 收到WebSocketFrame消息 =======");
+
+            // 判断是否是关闭链路的指令
+            if (frame instanceof CloseWebSocketFrame) {
+                handshaker.close(ctx.channel(), (CloseWebSocketFrame) frame.retain());
+                return;
+            }
+
+            // 判断是否是Ping消息
+            if (frame instanceof PingWebSocketFrame) {
+                ctx.channel().write(new PongWebSocketFrame(frame.content().retain()));
+                return;
+            }
+
+            //收到文本消息
+            if (frame instanceof TextWebSocketFrame) {
+                logger.debug("======= data: {}", ((TextWebSocketFrame) frame).text());
 //                if (nettyWebSocketProperties.isTextMessage()) {
 //                    String requestData = ((TextWebSocketFrame) frame).text();
 //                    NetMessage requestMsg = JSONObject.parseObject(requestData, NetMessage.class);
@@ -140,9 +140,9 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<Object> {
 //                    NetMessage responseMsg = new NetMessage(ErrorCode.ERROR, "暂不支持该数据类型！");
 //                    ctx.channel().writeAndFlush(responseMsg);
 //                }
-//            }
-//        } catch (Exception e) {
-//            logger.error("handleWebSocketRequest Err: ", e);
-//        }
-//    }
+            }
+        } catch (Exception e) {
+            logger.error("handleWebSocketRequest Err: ", e);
+        }
+    }
 }

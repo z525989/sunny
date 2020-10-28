@@ -12,6 +12,7 @@ import io.netty.util.CharsetUtil;
 public class NodeSenderHandler extends SimpleChannelInboundHandler<Object> {
 
     WebSocketClientHandshaker handshaker;
+
     ChannelPromise handshakeFuture;
 
     public void handlerAdded(ChannelHandlerContext ctx) {

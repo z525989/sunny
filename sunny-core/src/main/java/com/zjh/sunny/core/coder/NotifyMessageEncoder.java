@@ -1,8 +1,8 @@
 package com.zjh.sunny.core.coder;
 
 import com.alibaba.fastjson.JSONObject;
-import com.zjh.sakura.common.websocket.constant.HeadConstant;
-import com.zjh.sakura.common.websocket.pojo.message.NotifyMessage;
+import com.zjh.sunny.core.constant.HeadConstant;
+import com.zjh.sunny.core.pojo.message.NotifyMessage;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;

@@ -1,7 +1,7 @@
 package com.zjh.sunny.websocket;
 
 import com.zjh.sunny.core.util.StringUtil;
-import com.zjh.sunny.core.zookeeper.ServerNodeManager;
+import com.zjh.sunny.websocket.node.WebSocketServerNodeManager;
 import com.zjh.sunny.core.zookeeper.ZookeeperRegistryCenter;
 import com.zjh.sunny.websocket.mapping.WebSocketMappingBindHandler;
 import com.zjh.sunny.websocket.server.NettyWebSocketServer;
@@ -33,32 +33,32 @@ public class NettyWebSocketBoot {
     private ZookeeperRegistryCenter zookeeperRegistryCenter;
 
     @Autowired
-    private ServerNodeManager serverNodeManager;
+    private WebSocketServerNodeManager webSocketServerNodeManager;
 
     public void run() {
         logger.info("---------------- Netty WebSocket Server 开始启动 ----------------");
 
-        int wsPort = webSocketProperties.getPort();
-        String wsApiBasePackage = webSocketProperties.getWsApiBasePackage();
+        int websocketPort     = webSocketProperties.getPort();
+        String apiBasePackage = webSocketProperties.getApiBasePackage();
 
-        nettyWebSocketServer.setPort(wsPort);
+        nettyWebSocketServer.setPort(websocketPort);
 
         // 1.启动netty服务
         Thread thread = new Thread(nettyWebSocketServer);
         thread.start();
 
-        if (StringUtil.isBlank(wsApiBasePackage)) {
+        if (StringUtil.isBlank(apiBasePackage)) {
             throw new NullPointerException("端口绑定包名为空");
         }
 
         // 2.扫描并绑定webSocket api mapping
-        webSocketMappingBindHandler.bind(wsApiBasePackage);
+        webSocketMappingBindHandler.bind(apiBasePackage);
 
         // 3.初始化zookeeper连接
         zookeeperRegistryCenter.init();
 
         // 4.初始化zookeeper节点
-//        serverNodeManager.initNode();
+        webSocketServerNodeManager.initNode();
 
         logger.info("---------------- Netty WebSocket Server 启动结束 ----------------");
     }

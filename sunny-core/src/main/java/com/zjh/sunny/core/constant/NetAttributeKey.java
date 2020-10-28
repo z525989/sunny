@@ -6,7 +6,7 @@ import io.netty.util.AttributeKey;
  * @author zhangJinHui
  * @date 2020/3/22 13:29
  */
-public class NetConstant {
+public class NetAttributeKey {
 
     /**
      * 连接类型
@@ -23,8 +23,4 @@ public class NetConstant {
      */
     public static final AttributeKey<String> SESSION_ID = AttributeKey.valueOf("sessionId");
 
-    /**
-     *
-     */
-//    public static final AttributeKey<WebSocketSession> SESSION = AttributeKey.valueOf("session");
 }
