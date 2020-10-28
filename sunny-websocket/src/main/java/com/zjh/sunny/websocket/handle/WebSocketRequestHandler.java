@@ -1,9 +1,9 @@
 package com.zjh.sunny.websocket.handle;
 
 import com.alibaba.fastjson.JSONObject;
-import com.zjh.sunny.websocket.constant.ErrorCode;
 import com.zjh.sunny.core.util.SpringBeanUtil;
-import com.zjh.sunny.websocket.mapping.MappingBindHandler;
+import com.zjh.sunny.core.constant.ErrorCode;
+import com.zjh.sunny.websocket.mapping.WebSocketMappingBindHandler;
 import com.zjh.sunny.websocket.mapping.WebSocketMapping;
 import com.zjh.sunny.websocket.message.WsMessage;
 import com.zjh.sunny.websocket.session.SessionManager;
@@ -29,10 +29,7 @@ public class WebSocketRequestHandler {
     private SessionManager sessionManager;
 
     @Autowired
-    private MappingBindHandler mappingBindHandler;
-
-    @Autowired
-    private WebSocketPushHandler webSocketPushHandler;
+    private WebSocketMappingBindHandler webSocketMappingBindHandler;
 
     /**
      * netty webSocket 异步业务
@@ -47,7 +44,7 @@ public class WebSocketRequestHandler {
         try {
             int protocolCode = requestData.getProtocolCode();
 
-            Method method = mappingBindHandler.getMethod(protocolCode);
+            Method method = webSocketMappingBindHandler.getMethod(protocolCode);
             if (method == null) {
                 ctx.channel().writeAndFlush(new WsMessage(ErrorCode.ERROR, "请求协议不存在！"));
                 return;

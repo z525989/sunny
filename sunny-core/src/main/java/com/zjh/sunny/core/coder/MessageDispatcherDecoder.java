@@ -1,5 +1,6 @@
-package com.zjh.sunny.websocket.coder;
+package com.zjh.sunny.core.coder;
 
+import com.zjh.sunny.core.constant.HeadConstant;
 import com.zjh.sunny.core.constant.LinkType;
 import com.zjh.sunny.core.constant.NetConstant;
 import io.netty.buffer.ByteBuf;
@@ -28,6 +29,9 @@ public class MessageDispatcherDecoder extends ByteToMessageDecoder {
         LinkType linkType = getLinkType(ctx, in);
 
         switch (linkType) {
+            case TCP:
+                removeHttpHandle(pipeline);
+                break;
             case WEBSOCKET:
                 removeTcpHandle(pipeline);
                 break;
@@ -39,6 +43,12 @@ public class MessageDispatcherDecoder extends ByteToMessageDecoder {
                 break;
         }
 
+//        if (linkType != HTTP) {
+//            pipeline.remove("http-codec");
+//            pipeline.remove("aggregator");
+//            pipeline.remove("http-chunked");
+//        }
+
         ctx.pipeline().remove(this);
 
 //        in.resetReaderIndex();
@@ -47,7 +57,7 @@ public class MessageDispatcherDecoder extends ByteToMessageDecoder {
     }
 
     private LinkType getLinkType(ChannelHandlerContext ctx, ByteBuf buffer) throws Exception {
-        LinkType linkType = null;
+        LinkType linkType = LinkType.TCP;
         if (buffer.isReadable()) {
             int size = buffer.readableBytes();
             size = Math.min(size, 18);
@@ -58,6 +68,8 @@ public class MessageDispatcherDecoder extends ByteToMessageDecoder {
             logger.debug("=== 数据头：{}", str);
             if (str.toUpperCase().contains("HTTP")) {
                 linkType = LinkType.HTTP;
+            } else if (str.startsWith(HeadConstant.NOTIFY)){
+                linkType = LinkType.TCP;
             } else {
                 linkType = LinkType.WEBSOCKET;
             }

@@ -12,6 +12,10 @@ public class WebSocketProperties {
      */
     private int port;
 
+    /**
+     * websocket接口所在包名
+     */
+    private String wsApiBasePackage;
 
     public int getPort() {
         return port;
@@ -19,5 +23,13 @@ public class WebSocketProperties {
 
     public void setPort(int port) {
         this.port = port;
+    }
+
+    public String getWsApiBasePackage() {
+        return wsApiBasePackage;
+    }
+
+    public void setWsApiBasePackage(String wsApiBasePackage) {
+        this.wsApiBasePackage = wsApiBasePackage;
     }
 }

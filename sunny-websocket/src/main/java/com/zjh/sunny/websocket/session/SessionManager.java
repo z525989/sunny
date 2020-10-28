@@ -1,11 +1,10 @@
 package com.zjh.sunny.websocket.session;
 
-import com.zjh.sunny.websocket.constant.NetConstant;
+import com.zjh.sunny.core.constant.NetConstant;
 import io.netty.channel.Channel;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.util.concurrent.GlobalEventExecutor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;

@@ -1,8 +1,10 @@
 package com.zjh.sunny.websocket;
 
 import com.zjh.sunny.core.util.StringUtil;
-import com.zjh.sunny.websocket.mapping.MappingBindHandler;
-import com.zjh.sunny.websocket.server.NettyServer;
+import com.zjh.sunny.core.zookeeper.ServerNodeManager;
+import com.zjh.sunny.core.zookeeper.ZookeeperRegistryCenter;
+import com.zjh.sunny.websocket.mapping.WebSocketMappingBindHandler;
+import com.zjh.sunny.websocket.server.NettyWebSocketServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,33 +21,43 @@ public class NettyWebSocketBoot {
     private final Logger logger = LoggerFactory.getLogger(NettyWebSocketBoot.class);
 
     @Autowired
-    private NettyServer nettyServer;
+    private NettyWebSocketServer nettyWebSocketServer;
 
     @Autowired
-    private MappingBindHandler mappingBindHandler;
+    private WebSocketProperties webSocketProperties;
 
-//    @Autowired
-//    private ZookeeperRegistryCenter zookeeperRegistryCenter;
+    @Autowired
+    private WebSocketMappingBindHandler webSocketMappingBindHandler;
 
-//    @Autowired
-//    private ServerNodeManager serverNodeManager;
+    @Autowired
+    private ZookeeperRegistryCenter zookeeperRegistryCenter;
 
-    public void run(String projectPackage) {
+    @Autowired
+    private ServerNodeManager serverNodeManager;
+
+    public void run() {
         logger.info("---------------- Netty WebSocket Server 开始启动 ----------------");
 
-        Thread thread = new Thread(nettyServer);
+        int wsPort = webSocketProperties.getPort();
+        String wsApiBasePackage = webSocketProperties.getWsApiBasePackage();
+
+        nettyWebSocketServer.setPort(wsPort);
+
+        // 1.启动netty服务
+        Thread thread = new Thread(nettyWebSocketServer);
         thread.start();
 
-        if (StringUtil.isBlank(projectPackage)) {
+        if (StringUtil.isBlank(wsApiBasePackage)) {
             throw new NullPointerException("端口绑定包名为空");
         }
 
-        mappingBindHandler.bind(projectPackage);
+        // 2.扫描并绑定webSocket api mapping
+        webSocketMappingBindHandler.bind(wsApiBasePackage);
 
-        //初始化zookeeper
-//        zookeeperRegistryCenter.init();
+        // 3.初始化zookeeper连接
+        zookeeperRegistryCenter.init();
 
-        //初始化zookeeper节点
+        // 4.初始化zookeeper节点
 //        serverNodeManager.initNode();
 
         logger.info("---------------- Netty WebSocket Server 启动结束 ----------------");

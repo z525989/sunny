@@ -32,7 +32,6 @@
         <module>sunny-core</module>
         <module>sunny-websocket</module>
         <module>sunny-rpc</module>
-        <module>sunny-zookeeper</module>
     </modules>
 
     <dependencies>
