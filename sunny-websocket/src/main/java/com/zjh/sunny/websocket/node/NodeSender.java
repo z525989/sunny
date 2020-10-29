@@ -1,6 +1,6 @@
-package com.zjh.sunny.core.sender;
+package com.zjh.sunny.websocket.node;
 
-import com.zjh.sunny.core.coder.NotifyMessageEncoder;
+import com.zjh.sunny.websocket.coder.NotifyMessageEncoder;
 import com.zjh.sunny.core.pojo.node.NettyServerNode;
 import com.zjh.sunny.core.pojo.message.NotifyMessage;
 import io.netty.bootstrap.Bootstrap;
@@ -120,9 +120,9 @@ public class NodeSender {
                         pipeline.addLast(new NotifyMessageEncoder());
 
                         //自定义异常处理
-                        pipeline.addLast("exceptionHandler",new NodeExceptionHandler());
+                        pipeline.addLast("exceptionHandler", new NodeExceptionHandler());
 
-                        //心跳处理
+                        //TODO: 自定义心跳处理
 //                        pipeline.addLast(new NodeHeartBeatClientHandler());
                     }
                 });

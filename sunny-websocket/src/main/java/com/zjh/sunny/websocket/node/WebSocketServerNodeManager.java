@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.zjh.sunny.core.pojo.message.NotifyMessage;
 import com.zjh.sunny.core.pojo.node.NettyServerNode;
 import com.zjh.sunny.core.registry.RegistryCenter;
-import com.zjh.sunny.core.sender.NodeSender;
 import com.zjh.sunny.websocket.WebSocketProperties;
 import com.zjh.sunny.websocket.handle.WebSocketPushHandler;
 import com.zjh.sunny.websocket.session.WebSocketSession;

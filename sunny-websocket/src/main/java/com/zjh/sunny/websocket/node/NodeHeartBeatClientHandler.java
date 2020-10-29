@@ -1,4 +1,4 @@
-package com.zjh.sunny.core.sender;
+package com.zjh.sunny.websocket.node;
 
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;

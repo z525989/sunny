@@ -35,15 +35,17 @@ public class MessageDispatcherDecoder extends ByteToMessageDecoder {
                 removeTcpHandle(pipeline);
                 removeWebSocketHandle(pipeline);
                 break;
+            case TCP:
+                removeWebSocketHandle(pipeline);
+                break;
             default:
                 break;
         }
 
         ctx.pipeline().remove(this);
 
-//        in.resetReaderIndex();
-//
-//        ctx.fireChannelRead(in);
+        in.resetReaderIndex();
+        ctx.fireChannelRead(in);
     }
 
     private LinkType getLinkType(ChannelHandlerContext ctx, ByteBuf buffer) throws Exception {
@@ -58,6 +60,8 @@ public class MessageDispatcherDecoder extends ByteToMessageDecoder {
             logger.debug("=== 数据头：{}", str);
             if (str.toUpperCase().contains("HTTP")) {
                 linkType = LinkType.HTTP;
+            } else if (str.toUpperCase().contains("TCP")) {
+                linkType = LinkType.TCP;
             } else {
                 linkType = LinkType.WEBSOCKET;
             }

@@ -1,4 +1,4 @@
-package com.zjh.sunny.core.coder;
+package com.zjh.sunny.websocket.coder;
 
 import com.alibaba.fastjson.JSONObject;
 import com.zjh.sunny.core.constant.HeadConstant;

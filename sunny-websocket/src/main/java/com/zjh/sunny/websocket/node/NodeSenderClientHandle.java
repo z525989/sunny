@@ -1,5 +1,7 @@
-package com.zjh.sunny.core.sender;
+package com.zjh.sunny.websocket.node;
 
+import com.zjh.sunny.core.pojo.message.NotifyMessage;
+import com.zjh.sunny.core.pojo.message.WebSocketMessageType;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -32,14 +34,14 @@ public class NodeSenderClientHandle extends ChannelInboundHandlerAdapter {
         logger.debug("====channelActive");
 
         //发送链接成功的通知到远程节点
-//        NotifyMessage notifyMessage = new NotifyMessage();
-//        notifyMessage.setType(NotifyMessage.SESSION_ON);
-//
+        NotifyMessage notifyMessage = new NotifyMessage();
+        notifyMessage.setType(NotifyMessage.SESSION_ON);
+
 //        WebSocketMessage message = new WebSocketMessage();
 //        message.setType(WebSocketMessageType.NOTIFY);
 //        message.setData(notifyMessage);
 
-//        ctx.writeAndFlush(new TextWebSocketFrame("12345"));
+        ctx.writeAndFlush(notifyMessage);
     }
 
     /**
@@ -47,6 +49,12 @@ public class NodeSenderClientHandle extends ChannelInboundHandlerAdapter {
      */
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        //发送链接关闭的通知到远程节点
+        NotifyMessage notifyMessage = new NotifyMessage();
+        notifyMessage.setType(NotifyMessage.SESSION_OFF);
+
+        ctx.writeAndFlush(notifyMessage);
+
         ctx.close();
     }
 
