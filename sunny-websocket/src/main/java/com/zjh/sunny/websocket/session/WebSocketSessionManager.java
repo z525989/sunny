@@ -3,7 +3,6 @@ package com.zjh.sunny.websocket.session;
 import com.zjh.sunny.core.constant.NetAttributeKey;
 import com.zjh.sunny.core.pojo.node.NettyServerNode;
 import com.zjh.sunny.core.util.StringUtil;
-import com.zjh.sunny.websocket.constant.WebSocketAttributeKey;
 import com.zjh.sunny.websocket.dao.WebSocketSessionDao;
 import com.zjh.sunny.websocket.node.WebSocketServerNodeManager;
 import io.netty.channel.Channel;

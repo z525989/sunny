@@ -18,7 +18,9 @@ public class NotifyMessage {
 
     private int type;
 
-    private byte[] message;
+    private Object message;
+
+    private long userId;
 
     public int getType() {
         return type;
@@ -28,11 +30,19 @@ public class NotifyMessage {
         this.type = type;
     }
 
-    public byte[] getMessage() {
+    public Object getMessage() {
         return message;
     }
 
-    public void setMessage(byte[] message) {
+    public void setMessage(Object message) {
         this.message = message;
+    }
+
+    public long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(long userId) {
+        this.userId = userId;
     }
 }

@@ -1,5 +1,7 @@
 package com.zjh.sunny.websocket.handle;
 
+import com.zjh.sunny.websocket.node.WebSocketServerNodeManager;
+import com.zjh.sunny.websocket.session.WebSocketSession;
 import com.zjh.sunny.websocket.session.WebSocketSessionManager;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
@@ -23,11 +25,8 @@ public class WebSocketPushHandler {
     @Autowired
     private WebSocketSessionManager webSocketSessionManager;
 
-//    @Autowired
-//    private WebSocketSessionDao webSocketSessionDao;
-//
-//    @Autowired
-//    private ServerNodeManager serverNodeManager;
+    @Autowired
+    private WebSocketServerNodeManager webSocketServerNodeManager;
 
     /**
      * 给指定用户回复消息
@@ -38,9 +37,9 @@ public class WebSocketPushHandler {
     }
 
     /**
-     * 给全部用户回复消息
+     * 给当前服务器全部用户回复消息
      */
-    public void sendStrToAll(String msg) {
+    public void sendStrToLocalServerAllUser(String msg) {
         webSocketSessionManager.getChannelGroup().forEach(channel -> channel.writeAndFlush(new TextWebSocketFrame(msg)));
     }
 
@@ -53,26 +52,7 @@ public class WebSocketPushHandler {
                 .forEach(channel -> channel.writeAndFlush(new TextWebSocketFrame(msg)));
     }
 
-
-    public void sendWsMsgToUser(ChannelHandlerContext ctx, Object msg) {
-        webSocketSessionManager.getChannelGroup().stream()
-                .filter(channel -> channel.id() == ctx.channel().id())
-                .forEach(channel -> channel.writeAndFlush(msg));
-    }
-
-//    public void sendWsMsgToUser(long userId, Object msg) {
-//        Channel channel = sessionManager.getChannelByUserId(userId);
-//        if (channel != null) {
-//            channel.writeAndFlush(msg);
-//            return;
-//        }
-//        WebSocketSession session = webSocketSessionDao.getWebSocketSessionByUserId(userId);
-//        if (session != null) {
-//            serverNodeManager.forwardMsgToRemoteNode(session, msg);
-//        }
-//    }
-
-    public void sendWsMsgToUser(String sessionId, Object msg) {
+    public void sendWsMsgToLocalUserBySessionId(String sessionId, Object msg) {
         Channel channel = webSocketSessionManager.getChannelBySessionId(sessionId);
         if (channel == null) {
             return;
@@ -80,12 +60,33 @@ public class WebSocketPushHandler {
         channel.writeAndFlush(msg);
     }
 
-    public void sendWsMsgToUser(Object msg, Channel channel) {
+    public void sendWsMsgToLocalUser(Channel channel, Object msg) {
         if (channel == null) {
-            logger.error("channel is null");
+            logger.error("sendWsMsgToLocalUser error channel is null");
             return;
         }
         channel.writeAndFlush(msg);
+    }
+
+    /**
+     * 根据userId发送消息
+     * 如果userId不是当前节点用户，会转发到userId所在节点
+     */
+    public void sendWsMsgToUser(long userId, Object msg) {
+        Channel channel = webSocketSessionManager.getChannelByUserId(userId);
+        if (channel != null) {
+            channel.writeAndFlush(msg);
+            return;
+        }
+
+        //判断是否为远程节点
+        WebSocketSession webSocketSession = webSocketSessionManager.getWebSocketSessionByUserId(userId);
+        if (webSocketSession == null) {
+            logger.error("sendWsMsgToUser getRemoteUserSession error");
+            return;
+        }
+
+        webSocketServerNodeManager.forwardMsgToRemoteNode(webSocketSession, msg);
     }
 
     public void sendByteMsgToUser(ByteBuf msg, Channel channel) {

@@ -6,6 +6,7 @@ import com.zjh.sunny.core.pojo.node.NettyServerNode;
 import com.zjh.sunny.core.registry.RegistryCenter;
 import com.zjh.sunny.core.sender.NodeSender;
 import com.zjh.sunny.websocket.WebSocketProperties;
+import com.zjh.sunny.websocket.handle.WebSocketPushHandler;
 import com.zjh.sunny.websocket.session.WebSocketSession;
 import io.netty.channel.ChannelHandlerContext;
 import org.apache.curator.framework.recipes.cache.ChildData;
@@ -35,6 +36,9 @@ public class WebSocketServerNodeManager {
 
     @Autowired
     private WebSocketProperties webSocketProperties;
+
+    @Autowired
+    private WebSocketPushHandler webSocketPushHandler;
 
     /**
      * 注册到netty的节点（带临时id）
@@ -253,7 +257,10 @@ public class WebSocketServerNodeManager {
      * 接收转发消息
      */
     private void receiveForwardMsg(NotifyMessage message) {
-        //TODO:接收转发消息逻辑
+        long userId = message.getUserId();
+        Object msg = message.getMessage();
+
+        webSocketPushHandler.sendWsMsgToUser(userId, msg);
     }
 
 
@@ -262,7 +269,7 @@ public class WebSocketServerNodeManager {
      * @param session session
      * @param msg 消息内容
      */
-    public void forwardMsgToRemoteNode(WebSocketSession session, JSONObject msg) {
+    public void forwardMsgToRemoteNode(WebSocketSession session, Object msg) {
         // 1. 获取用户所在节点
         NettyServerNode nettyServerNode = session.getNode();
         if (nettyServerNode == null) {
@@ -278,14 +285,15 @@ public class WebSocketServerNodeManager {
         NotifyMessage notifyMessage = new NotifyMessage();
 
         notifyMessage.setType(NotifyMessage.FORWARD);
-        notifyMessage.setMessage(msg.toJSONString().getBytes());
+        notifyMessage.setMessage(msg);
+        notifyMessage.setUserId(session.getUserId());
 
         // 3. 发送消息到对应节点
         nodeSender.writeAndFlush(notifyMessage);
     }
 
 
-
+    //TODO: 节点负载均衡
 //    /**
 //     * 增加负载，表示有用户登录成功
 //     *
