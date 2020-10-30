@@ -1,8 +1,6 @@
-package com.zjh.sunny.websocket.handle;
+package com.zjh.sunny.websocket.manager;
 
-import com.zjh.sunny.websocket.node.WebSocketServerNodeManager;
 import com.zjh.sunny.websocket.session.WebSocketSession;
-import com.zjh.sunny.websocket.session.WebSocketSessionManager;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -18,9 +16,9 @@ import org.springframework.stereotype.Service;
  * @author zhangJinHui
  */
 @Service
-public class WebSocketPushHandler {
+public class WebSocketPushManager {
 
-    private final Logger logger = LoggerFactory.getLogger(WebSocketPushHandler.class);
+    private final Logger logger = LoggerFactory.getLogger(WebSocketPushManager.class);
 
     @Autowired
     private WebSocketSessionManager webSocketSessionManager;

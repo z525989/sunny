@@ -2,6 +2,7 @@ package com.zjh.sunny.websocket.mapping;
 
 
 import com.zjh.sunny.core.util.ClassUtil;
+import com.zjh.sunny.core.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -19,7 +20,7 @@ public class WebSocketMappingBindHandler {
 
     private final static Logger logger = LoggerFactory.getLogger(WebSocketMappingBindHandler.class);
 
-    private Map<Integer, Method> methodMap = new HashMap<>();
+    private Map<String, Method> methodMap = new HashMap<>();
 
     public void bind(String scanPackage) {
         try {
@@ -54,17 +55,17 @@ public class WebSocketMappingBindHandler {
                 continue;
             }
 
-            int protocolCode = requestMapper.protocolCode();
+            String protocol = requestMapper.protocol();
 
-            if (protocolCode == 0 || methodMap.containsKey(protocolCode)) {
+            if (StringUtil.isNotEmpty(protocol) || methodMap.containsKey(protocol)) {
                 throw new RuntimeException("protocolCode is exist");
             }
 
-            methodMap.put(protocolCode, method);
+            methodMap.put(protocol, method);
         }
     }
 
-    public Method getMethod(int protocolCode) {
-        return methodMap.get(protocolCode);
+    public Method getMethod(String protocol) {
+        return methodMap.get(protocol);
     }
 }

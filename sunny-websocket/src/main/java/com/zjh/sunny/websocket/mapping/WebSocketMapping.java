@@ -20,8 +20,8 @@ public @interface WebSocketMapping {
     boolean isAsync() default true;
 
     /**
-     * 请求协议id
+     * 请求协议
      */
-    int protocolCode();
+    String protocol();
 }
 

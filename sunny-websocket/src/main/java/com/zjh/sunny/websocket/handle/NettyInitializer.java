@@ -1,8 +1,6 @@
 package com.zjh.sunny.websocket.handle;
 
-import com.zjh.sunny.websocket.coder.MessageDispatcherDecoder;
-import com.zjh.sunny.websocket.coder.WebSocketMessageDecoder;
-import com.zjh.sunny.websocket.coder.WebSocketMessageEncoder;
+import com.zjh.sunny.websocket.coder.*;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -18,6 +16,9 @@ public class NettyInitializer extends ChannelInitializer<NioSocketChannel> {
     @Autowired
     private WebSocketHandler webSocketHandler;
 
+    @Autowired
+    private NotifyHandler notifyHandler;
+
     @Override
     protected void initChannel(NioSocketChannel channel) throws Exception {
         ChannelPipeline pipeline = channel.pipeline();
@@ -31,12 +32,14 @@ public class NettyInitializer extends ChannelInitializer<NioSocketChannel> {
         //分块，方便大文件传输，不过实质上都是短的文本数据
         pipeline.addLast("http-chunked", new ChunkedWriteHandler());
 
-        //自定义解码器
+        //websocket相关配置
         pipeline.addLast("webSocketMessageDecoder", new WebSocketMessageDecoder());
-
-        //websocket消息处理
-        pipeline.addLast(new WebSocketMessageEncoder());
-
+        pipeline.addLast("webSocketMessageEncoder", new WebSocketMessageEncoder());
         pipeline.addLast("webSocketHandler", webSocketHandler);
+
+        //TCP-notify相关配置
+        pipeline.addLast("notifyMessageDecoder", new NotifyMessageDecoder());
+        pipeline.addLast("notifyMessageEncoder", new NotifyMessageEncoder());
+        pipeline.addLast("notifyHandler", notifyHandler);
     }
 }

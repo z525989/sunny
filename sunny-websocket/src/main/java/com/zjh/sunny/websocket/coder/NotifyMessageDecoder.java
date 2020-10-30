@@ -1,7 +1,7 @@
 package com.zjh.sunny.websocket.coder;
 
 import com.alibaba.fastjson.JSONObject;
-import com.zjh.sunny.core.constant.HeadConstant;
+import com.zjh.sunny.core.constant.NetType;
 import com.zjh.sunny.core.pojo.message.NotifyMessage;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -30,8 +30,7 @@ public class NotifyMessageDecoder extends ByteToMessageDecoder {
             //消息体长度
             final int length = in.readableBytes();
 
-            int headLength = HeadConstant.NOTIFY.length();
-
+            int headLength = NetType.TCP.getHead().length();
             if (length < headLength) {
                 ctx.channel().close();
                 return;
@@ -48,7 +47,7 @@ public class NotifyMessageDecoder extends ByteToMessageDecoder {
 
             out.add(message);
         } catch (Exception e) {
-            logger.error("WebSocketMessageDecoder Error :", e);
+            logger.error("NotifyMessageDecoder Error :", e);
             ctx.close();
         }
     }

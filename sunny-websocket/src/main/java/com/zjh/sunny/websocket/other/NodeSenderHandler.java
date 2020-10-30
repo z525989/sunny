@@ -1,4 +1,4 @@
-package com.zjh.sunny.websocket.node;
+package com.zjh.sunny.websocket.other;
 
 import io.netty.channel.*;
 import io.netty.handler.codec.http.FullHttpResponse;

@@ -1,7 +1,8 @@
 package com.zjh.sunny.websocket.handle;
 
-import com.zjh.sunny.websocket.message.WsMessage;
-import com.zjh.sunny.websocket.session.WebSocketSessionManager;
+import com.zjh.sunny.websocket.manager.WebSocketRequestManager;
+import com.zjh.sunny.websocket.message.WebSocketMessage;
+import com.zjh.sunny.websocket.manager.WebSocketSessionManager;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
@@ -29,10 +30,7 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<Object> {
     private WebSocketSessionManager webSocketSessionManager;
 
     @Autowired
-    private WebSocketRequestHandler webSocketRequestService;
-
-    @Autowired
-    private WebSocketPushHandler webSocketPushService;
+    private WebSocketRequestManager webSocketRequestService;
 
     /**
      * 产生新链接时候
@@ -42,8 +40,8 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<Object> {
         logger.debug("======= netty收到请求, 客户端IP: {}, 请求消息：\r\n{}", ctx.channel().remoteAddress(), msg);
         if (msg instanceof FullHttpRequest) {
             handHttpRequest(ctx, (FullHttpRequest) msg);
-        } else if (msg instanceof WsMessage) {
-            webSocketRequestService.executor(ctx, (WsMessage) msg);
+        } else if (msg instanceof WebSocketMessage) {
+            webSocketRequestService.executor(ctx, (WebSocketMessage) msg);
         }
     }
 

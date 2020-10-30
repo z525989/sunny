@@ -1,10 +1,11 @@
-package com.zjh.sunny.websocket.session;
+package com.zjh.sunny.websocket.manager;
 
 import com.zjh.sunny.core.constant.NetAttributeKey;
 import com.zjh.sunny.core.pojo.node.NettyServerNode;
 import com.zjh.sunny.core.util.StringUtil;
 import com.zjh.sunny.websocket.dao.WebSocketSessionDao;
-import com.zjh.sunny.websocket.node.WebSocketServerNodeManager;
+import com.zjh.sunny.websocket.manager.WebSocketServerNodeManager;
+import com.zjh.sunny.websocket.session.WebSocketSession;
 import io.netty.channel.Channel;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
@@ -29,11 +30,11 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class WebSocketSessionManager {
 
-    private final ChannelGroup channelGroup         = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
+    private final ChannelGroup channelGroup         =  new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
 
-    private final Map<String, Channel> channelMap   = new ConcurrentHashMap<>();
+    private final Map<String, Channel> channelMap   =  new ConcurrentHashMap<>();
 
-    private final Map<Long, Channel> userChannelMap = new ConcurrentHashMap<>();
+    private final Map<Long, Channel> userChannelMap =  new ConcurrentHashMap<>();
 
     @Autowired
     private WebSocketSessionDao webSocketSessionDao;

@@ -1,7 +1,7 @@
 package com.zjh.sunny.websocket;
 
 import com.zjh.sunny.core.util.StringUtil;
-import com.zjh.sunny.websocket.node.WebSocketServerNodeManager;
+import com.zjh.sunny.websocket.manager.WebSocketServerNodeManager;
 import com.zjh.sunny.core.zookeeper.ZookeeperRegistryCenter;
 import com.zjh.sunny.websocket.mapping.WebSocketMappingBindHandler;
 import com.zjh.sunny.websocket.server.NettyWebSocketServer;

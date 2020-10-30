@@ -3,6 +3,7 @@ package com.zjh.sunny.websocket.node;
 import com.zjh.sunny.websocket.coder.NotifyMessageEncoder;
 import com.zjh.sunny.core.pojo.node.NettyServerNode;
 import com.zjh.sunny.core.pojo.message.NotifyMessage;
+import com.zjh.sunny.websocket.handle.NodeExceptionHandler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.*;

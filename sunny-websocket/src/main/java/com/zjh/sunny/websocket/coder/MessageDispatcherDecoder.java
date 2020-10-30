@@ -1,7 +1,8 @@
 package com.zjh.sunny.websocket.coder;
 
-import com.zjh.sunny.core.constant.LinkType;
+import com.zjh.sunny.core.constant.NetType;
 import com.zjh.sunny.core.constant.NetAttributeKey;
+import com.zjh.sunny.core.util.StringUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
@@ -24,22 +25,32 @@ public class MessageDispatcherDecoder extends ByteToMessageDecoder {
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
         ChannelPipeline pipeline = ctx.pipeline();
+        NetType netType = getNetType(ctx, in);
 
-        LinkType linkType = getLinkType(ctx, in);
+        if (netType != null) {
+            switch (netType) {
+                case WEBSOCKET:
+                    pipeline.remove("notifyMessageDecoder");
+                    pipeline.remove("notifyMessageEncoder");
+                    pipeline.remove("notifyHandler");
+                    break;
+                case HTTP:
+                    pipeline.remove("notifyMessageDecoder");
+                    pipeline.remove("notifyMessageEncoder");
+                    pipeline.remove("notifyHandler");
 
-        switch (linkType) {
-            case WEBSOCKET:
-                removeTcpHandle(pipeline);
-                break;
-            case HTTP:
-                removeTcpHandle(pipeline);
-                removeWebSocketHandle(pipeline);
-                break;
-            case TCP:
-                removeWebSocketHandle(pipeline);
-                break;
-            default:
-                break;
+                    pipeline.remove("webSocketMessageDecoder");
+                    pipeline.remove("webSocketMessageEncoder");
+                    pipeline.remove("webSocketHandler");
+                    break;
+                case TCP:
+                    pipeline.remove("webSocketMessageDecoder");
+                    pipeline.remove("webSocketMessageEncoder");
+                    pipeline.remove("webSocketHandler");
+                    break;
+                default:
+                    break;
+            }
         }
 
         ctx.pipeline().remove(this);
@@ -48,8 +59,8 @@ public class MessageDispatcherDecoder extends ByteToMessageDecoder {
         ctx.fireChannelRead(in);
     }
 
-    private LinkType getLinkType(ChannelHandlerContext ctx, ByteBuf buffer) throws Exception {
-        LinkType linkType = null;
+    private NetType getNetType(ChannelHandlerContext ctx, ByteBuf buffer) throws Exception {
+        NetType netType = null;
         if (buffer.isReadable()) {
             int size = buffer.readableBytes();
             size = Math.min(size, 18);
@@ -57,31 +68,30 @@ public class MessageDispatcherDecoder extends ByteToMessageDecoder {
             buffer.getBytes(0, temp);
             String str = new String(temp);
 
+            if (StringUtil.isEmpty(str)) {
+                return null;
+            }
+
             logger.debug("=== 数据头：{}", str);
+
             if (str.toUpperCase().contains("HTTP")) {
-                linkType = LinkType.HTTP;
-            } else if (str.toUpperCase().contains("TCP")) {
-                linkType = LinkType.TCP;
+                netType = NetType.HTTP;
             } else {
-                linkType = LinkType.WEBSOCKET;
+                if (str.startsWith(NetType.TCP.getHead())) {
+                    netType = NetType.TCP;
+                } else if (str.startsWith(NetType.WEBSOCKET.getHead())) {
+                    netType = NetType.WEBSOCKET;
+                }
             }
         }
         //保存链接类型
-        ctx.channel().attr(NetAttributeKey.LINK_TYPE).set(linkType);
-        return linkType;
+        ctx.channel().attr(NetAttributeKey.LINK_TYPE).set(netType);
+        return netType;
     }
 
     private void removeHttpHandle(ChannelPipeline pipeline) {
         pipeline.remove("http-codec");
         pipeline.remove("aggregator");
         pipeline.remove("http-chunked");
-    }
-
-    private void removeTcpHandle(ChannelPipeline pipeline) {
-        pipeline.remove("notifyMessageDecoder");
-    }
-
-    private void removeWebSocketHandle(ChannelPipeline pipeline) {
-
     }
 }

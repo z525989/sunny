@@ -1,29 +1,37 @@
-package com.zjh.sunny.websocket.node;
+package com.zjh.sunny.websocket.handle;
 
 import com.zjh.sunny.core.pojo.message.NotifyMessage;
-import com.zjh.sunny.core.pojo.message.WebSocketMessageType;
+import com.zjh.sunny.websocket.manager.WebSocketServerNodeManager;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * @author zhangJinHui
- * @date 2020/3/20 23:19
+ * @date 2020/10/30 11:39
  */
+@Component
 @ChannelHandler.Sharable
-public class NodeSenderClientHandle extends ChannelInboundHandlerAdapter {
+public class NotifyHandler extends SimpleChannelInboundHandler<Object> {
 
-    private final Logger logger = LoggerFactory.getLogger(NodeSenderClientHandle.class);
+    private final Logger logger = LoggerFactory.getLogger(NotifyHandler.class);
+
+    @Autowired
+    private WebSocketServerNodeManager webSocketServerNodeManager;
 
     /**
      * 产生新链接时候
      */
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        logger.debug("======= netty收到请求, 客户端IP: {}, 请求消息：\r\n{}", ctx.channel().remoteAddress(), msg);
-
+    protected void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
+        logger.debug("======= NotifyHandler收到请求, 客户端IP: {}, 请求消息：\r\n{}", ctx.channel().remoteAddress(), msg);
+        if (msg instanceof NotifyMessage) {
+            webSocketServerNodeManager.receiveNotify(ctx, (NotifyMessage) msg);
+        }
     }
 
     /**
@@ -36,10 +44,6 @@ public class NodeSenderClientHandle extends ChannelInboundHandlerAdapter {
         //发送链接成功的通知到远程节点
         NotifyMessage notifyMessage = new NotifyMessage();
         notifyMessage.setType(NotifyMessage.SESSION_ON);
-
-//        WebSocketMessage message = new WebSocketMessage();
-//        message.setType(WebSocketMessageType.NOTIFY);
-//        message.setData(notifyMessage);
 
         ctx.writeAndFlush(notifyMessage);
     }

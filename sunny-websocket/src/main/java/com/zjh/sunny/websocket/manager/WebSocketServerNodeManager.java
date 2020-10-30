@@ -1,11 +1,11 @@
-package com.zjh.sunny.websocket.node;
+package com.zjh.sunny.websocket.manager;
 
 import com.alibaba.fastjson.JSONObject;
 import com.zjh.sunny.core.pojo.message.NotifyMessage;
 import com.zjh.sunny.core.pojo.node.NettyServerNode;
 import com.zjh.sunny.core.registry.RegistryCenter;
 import com.zjh.sunny.websocket.WebSocketProperties;
-import com.zjh.sunny.websocket.handle.WebSocketPushHandler;
+import com.zjh.sunny.websocket.node.NodeSender;
 import com.zjh.sunny.websocket.session.WebSocketSession;
 import io.netty.channel.ChannelHandlerContext;
 import org.apache.curator.framework.recipes.cache.ChildData;
@@ -14,7 +14,6 @@ import org.apache.zookeeper.CreateMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -37,7 +36,7 @@ public class WebSocketServerNodeManager {
     private WebSocketProperties webSocketProperties;
 
     @Autowired
-    private WebSocketPushHandler webSocketPushHandler;
+    private WebSocketPushManager webSocketPushManager;
 
     /**
      * 注册到netty的节点（带临时id）
@@ -231,7 +230,7 @@ public class WebSocketServerNodeManager {
     /**
      * 接收转发消息内容
      */
-    @Async("asyncWebsocket")
+//    @Async("asyncWebsocket")
     public void receiveNotify(ChannelHandlerContext ctx, NotifyMessage message) {
         try {
             switch (message.getType()) {
@@ -259,9 +258,8 @@ public class WebSocketServerNodeManager {
         long userId = message.getUserId();
         Object msg = message.getMessage();
 
-        webSocketPushHandler.sendWsMsgToUser(userId, msg);
+        webSocketPushManager.sendWsMsgToUser(userId, msg);
     }
-
 
     /**
      * 转发消息到对应节点

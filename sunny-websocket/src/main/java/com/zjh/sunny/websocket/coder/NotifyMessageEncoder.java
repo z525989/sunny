@@ -1,7 +1,7 @@
 package com.zjh.sunny.websocket.coder;
 
 import com.alibaba.fastjson.JSONObject;
-import com.zjh.sunny.core.constant.HeadConstant;
+import com.zjh.sunny.core.constant.NetType;
 import com.zjh.sunny.core.pojo.message.NotifyMessage;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -25,7 +25,7 @@ public class NotifyMessageEncoder extends MessageToByteEncoder<NotifyMessage> {
         logger.debug("======= 出站数据编码 =======");
         try {
             //自定义head消息
-            byte[] head = HeadConstant.NOTIFY.getBytes();
+            byte[] head = NetType.TCP.getHead().getBytes();
 
             //将对象转换为byte
             byte[] context = JSONObject.toJSONBytes(msg);

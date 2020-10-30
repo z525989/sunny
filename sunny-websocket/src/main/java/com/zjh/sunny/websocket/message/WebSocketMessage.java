@@ -8,7 +8,7 @@ import java.io.Serializable;
  * socket请求包
  * @author zhangJinHui
  */
-public class WsMessage implements Serializable {
+public class WebSocketMessage implements Serializable {
 
     private static final long serialVersionUID = -2258073051347458378L;
 
@@ -31,7 +31,7 @@ public class WsMessage implements Serializable {
     /**
      * 协议码
      */
-    private int protocolCode;
+    private String protocol;
 
     /**
      * 错误码
@@ -48,11 +48,11 @@ public class WsMessage implements Serializable {
      */
     private JSONObject data;
 
-    public WsMessage() {
+    public WebSocketMessage() {
         this.data = new JSONObject();
     }
 
-    public WsMessage(int code, String msg) {
+    public WebSocketMessage(int code, String msg) {
         this.data = new JSONObject();
         this.code = code;
         this.msg = msg;
@@ -82,12 +82,12 @@ public class WsMessage implements Serializable {
         this.token = token;
     }
 
-    public int getProtocolCode() {
-        return protocolCode;
+    public String getProtocol() {
+        return protocol;
     }
 
-    public void setProtocolCode(int protocolCode) {
-        this.protocolCode = protocolCode;
+    public void setProtocolCode(String protocol) {
+        this.protocol = protocol;
     }
 
     public int getCode() {
