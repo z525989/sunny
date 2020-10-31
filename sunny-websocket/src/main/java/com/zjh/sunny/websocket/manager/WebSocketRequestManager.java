@@ -1,10 +1,10 @@
 package com.zjh.sunny.websocket.manager;
 
 import com.alibaba.fastjson.JSONObject;
-import com.zjh.sunny.core.util.SpringBeanUtil;
 import com.zjh.sunny.core.constant.ErrorCode;
-import com.zjh.sunny.websocket.mapping.WebSocketMappingBindHandler;
+import com.zjh.sunny.core.util.SpringBeanUtil;
 import com.zjh.sunny.websocket.mapping.WebSocketMapping;
+import com.zjh.sunny.websocket.mapping.WebSocketMappingBindHandler;
 import com.zjh.sunny.websocket.message.WebSocketMessage;
 import io.netty.channel.ChannelHandlerContext;
 import org.slf4j.Logger;
@@ -25,10 +25,13 @@ public class WebSocketRequestManager {
     private final Logger logger = LoggerFactory.getLogger(WebSocketRequestManager.class);
 
     @Autowired
+    private WebSocketMappingBindHandler webSocketMappingBindHandler;
+
+    @Autowired
     private WebSocketSessionManager webSocketSessionManager;
 
     @Autowired
-    private WebSocketMappingBindHandler webSocketMappingBindHandler;
+    private WebSocketTokenManager webSocketTokenManager;
 
     /**
      * netty webSocket 异步业务
@@ -45,7 +48,7 @@ public class WebSocketRequestManager {
             //TODO: 重连优化
             boolean checkSession = webSocketSessionManager.checkSession(ctx.channel(), requestData.getSessionId());
             if (!checkSession) {
-                ctx.channel().writeAndFlush(new WebSocketMessage(ErrorCode.ERROR, "会话超时"));
+                ctx.channel().writeAndFlush(new WebSocketMessage(ErrorCode.ERROR, "session time out"));
                 return;
             }
 
@@ -53,7 +56,7 @@ public class WebSocketRequestManager {
 
             Method method = webSocketMappingBindHandler.getMethod(protocol);
             if (method == null) {
-                ctx.channel().writeAndFlush(new WebSocketMessage(ErrorCode.ERROR, "请求协议不存在！"));
+                ctx.channel().writeAndFlush(new WebSocketMessage(ErrorCode.ERROR, "protocol is not fount！"));
                 return;
             }
 
@@ -61,8 +64,11 @@ public class WebSocketRequestManager {
 
             boolean isAuth = requestMapper.isAuth();
             if (isAuth) {
-                //TODO:token校验
+                //token校验
                 String token = requestData.getToken();
+                if (!webSocketTokenManager.verityAndExpireToken(token)) {
+                    ctx.channel().writeAndFlush(new WebSocketMessage(ErrorCode.ERROR, "login timeout"));
+                }
             }
 
             Object clazz = SpringBeanUtil.getBean(method.getDeclaringClass());

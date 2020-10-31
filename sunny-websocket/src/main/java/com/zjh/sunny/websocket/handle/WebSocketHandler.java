@@ -1,8 +1,8 @@
 package com.zjh.sunny.websocket.handle;
 
 import com.zjh.sunny.websocket.manager.WebSocketRequestManager;
-import com.zjh.sunny.websocket.message.WebSocketMessage;
 import com.zjh.sunny.websocket.manager.WebSocketSessionManager;
+import com.zjh.sunny.websocket.message.WebSocketMessage;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
@@ -42,6 +42,8 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<Object> {
             handHttpRequest(ctx, (FullHttpRequest) msg);
         } else if (msg instanceof WebSocketMessage) {
             webSocketRequestService.executor(ctx, (WebSocketMessage) msg);
+        } else if (msg instanceof WebSocketFrame) {
+            handleWebSocketRequest(ctx, (WebSocketFrame) msg);
         }
     }
 

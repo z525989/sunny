@@ -32,6 +32,28 @@ public class WebSocketProperties {
      */
     private String zkPathPrefix;
 
+    /**
+     * token缓存key前缀
+     */
+    private String tokenCacheKeyPrefix;
+
+    /**
+     * token缓存过期时间(毫秒)
+     * -1: 不过期
+     */
+    private long tokenCacheExpire;
+
+    /**
+     * session缓存key前缀
+     */
+    private String sessionCacheKeyPrefix;
+
+    /**
+     * session缓存过期时间(毫秒)
+     * -1: 不过期
+     */
+    private long sessionCacheExpire;
+
     public int getPort() {
         return port;
     }
@@ -70,5 +92,37 @@ public class WebSocketProperties {
 
     public void setZkPathPrefix(String zkPathPrefix) {
         this.zkPathPrefix = zkPathPrefix;
+    }
+
+    public String getTokenCacheKeyPrefix() {
+        return tokenCacheKeyPrefix;
+    }
+
+    public void setTokenCacheKeyPrefix(String tokenCacheKeyPrefix) {
+        this.tokenCacheKeyPrefix = tokenCacheKeyPrefix;
+    }
+
+    public long getTokenCacheExpire() {
+        return tokenCacheExpire;
+    }
+
+    public void setTokenCacheExpire(long tokenCacheExpire) {
+        this.tokenCacheExpire = tokenCacheExpire;
+    }
+
+    public String getSessionCacheKeyPrefix() {
+        return sessionCacheKeyPrefix;
+    }
+
+    public void setSessionCacheKeyPrefix(String sessionCacheKeyPrefix) {
+        this.sessionCacheKeyPrefix = sessionCacheKeyPrefix;
+    }
+
+    public long getSessionCacheExpire() {
+        return sessionCacheExpire;
+    }
+
+    public void setSessionCacheExpire(long sessionCacheExpire) {
+        this.sessionCacheExpire = sessionCacheExpire;
     }
 }

@@ -2,6 +2,8 @@ package com.zjh.sunny.websocket.dao.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.zjh.sunny.core.util.StringUtil;
+import com.zjh.sunny.websocket.WebSocketProperties;
+import com.zjh.sunny.websocket.constant.DefaultConstant;
 import com.zjh.sunny.websocket.dao.WebSocketSessionDao;
 import com.zjh.sunny.websocket.session.WebSocketSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,16 +15,21 @@ import java.util.concurrent.TimeUnit;
 @Repository
 public class WebSocketSessionRedisDaoImpl implements WebSocketSessionDao {
 
-    public static final int TIMEOUT = 30 * 60 * 1000;
-
-    public static final String CACHE_KEY = "ws:session:uid:";
+    @Autowired
+    private WebSocketProperties webSocketProperties;
 
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
 
     @Override
     public WebSocketSession getSessionByUserId(long userId) {
-        String cacheKey = CACHE_KEY + userId;
+        String cacheKey = webSocketProperties.getTokenCacheKeyPrefix();
+        if (StringUtil.isEmpty(cacheKey)) {
+            cacheKey = DefaultConstant.DEFAULT_SESSION_KEY_PREFIX;
+        }
+
+        cacheKey += userId;
+
         String cacheStr = redisTemplate.opsForValue().get(cacheKey);
 
         if (StringUtil.isEmpty(cacheStr)) {
@@ -34,14 +41,33 @@ public class WebSocketSessionRedisDaoImpl implements WebSocketSessionDao {
 
     @Override
     public void saveSession(WebSocketSession webSocketSession) {
-        String cacheKey = CACHE_KEY + webSocketSession.getUserId();
+        String cacheKey = webSocketProperties.getTokenCacheKeyPrefix();
+        if (StringUtil.isEmpty(cacheKey)) {
+            cacheKey = DefaultConstant.DEFAULT_SESSION_KEY_PREFIX;
+        }
+
+        cacheKey += webSocketSession.getUserId();
+
         String cacheStr = JSONObject.toJSONString(webSocketSession);
-        redisTemplate.opsForValue().set(cacheKey, cacheStr, TIMEOUT, TimeUnit.MILLISECONDS);
+
+        long expire = webSocketProperties.getTokenCacheExpire();
+
+        if (expire == -1) {
+            redisTemplate.opsForValue().set(cacheKey, cacheStr);
+        } else {
+            if (expire <= 0) {
+                expire = DefaultConstant.DEFAULT_SESSION_EXPIRE;
+            }
+            redisTemplate.opsForValue().set(cacheKey, cacheStr, expire, TimeUnit.MILLISECONDS);
+        }
     }
 
     @Override
     public void deleteSessionByUserId(long userId) {
-        String cacheKey = CACHE_KEY + userId;
+        String cacheKey = webSocketProperties.getTokenCacheKeyPrefix();
+        if (StringUtil.isEmpty(cacheKey)) {
+            cacheKey = DefaultConstant.DEFAULT_SESSION_KEY_PREFIX;
+        }
         redisTemplate.delete(cacheKey);
     }
 }
