@@ -13,10 +13,14 @@
 不需要引用，下边模块会自动导入
 
 ### sunny-websocket
-websocket框架<br>
-数据包序列化采用fastjson<br>
-websocket session储存与redis中<br>
-链接到 服务A 的用户 支持转发消息 到 链接自服务B的用户
+1.	基于SpringBoot、netty、redis、zookeeper开发的长连接框架<br>
+2.	简化websocket使用时候集成流程<br>
+3.	使用zookeeper作为注册中心，支持分布式部署，新增节点自动通知到已经上线节点<br>
+4.	长连接会话管理，会话信息储存于redis中，支持跨服务转发消息<br>
+5.	服务之间通讯采用TCP，与websocket采用相同端口。使用netty动态解码器解决不同协议数据包解析问题<br>
+6.	使用AOP编程，长连接协议通过注解形式定义，启动时候会自动扫描注解，绑定协议号<br>
+7.	集成token校验功能，支持跨服务共享token
+
 
 ### sunny-rpc
 rpc通讯模块，待开发
