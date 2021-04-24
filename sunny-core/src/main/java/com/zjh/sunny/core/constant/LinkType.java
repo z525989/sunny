@@ -5,7 +5,7 @@ package com.zjh.sunny.core.constant;
  * @author zhangJinHui
  * @date 2020/3/22 13:30
  */
-public enum NetType {
+public enum LinkType {
 
     HTTP(1, "HTTP"),
 
@@ -17,7 +17,7 @@ public enum NetType {
 
     private String head;
 
-    NetType(int type, String head) {
+    LinkType(int type, String head) {
         this.type = type;
         this.head = head;
     }

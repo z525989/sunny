@@ -11,7 +11,7 @@ public class NetAttributeKey {
     /**
      * 连接类型
      */
-    public static final AttributeKey<NetType> LINK_TYPE = AttributeKey.valueOf("LinkType");
+    public static final AttributeKey<LinkType> LINK_TYPE = AttributeKey.valueOf("LinkType");
 
     /**
      * 用户id
